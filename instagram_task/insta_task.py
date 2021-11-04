@@ -6,7 +6,7 @@ import collections
 unique = set()
 
 
-def uniqueValues():
+def unique_values():
     for filename in glob.glob("*.txt"):
         content = open(filename).read().splitlines()
         for line in content:
@@ -28,7 +28,7 @@ def unique_one_time():
 exist = list()
 
 
-def existInAllFiles():
+def exist_in_all_files():
     for filename in glob.glob("*.txt"):
         content = open(filename).read().splitlines()
         exist.append(content)
@@ -39,7 +39,7 @@ def existInAllFiles():
 exist_ten = set()
 
 
-def existInAtLeastTen():
+def exist_in_ten():
     dict_exist = list()
     for el in exist:
         count = collections.Counter(el)
@@ -58,10 +58,10 @@ def existInAtLeastTen():
 
 
 start = time.time()
-print(uniqueValues())
+print(unique_values())
 print(unique_one_time())
-print(existInAllFiles())
-print(existInAtLeastTen())
+print(exist_in_all_files())
+print(exist_in_ten())
 end = time.time() - start
 print(f"Process time in {round(end)} seconds")
 
