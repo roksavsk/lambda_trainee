@@ -1,26 +1,32 @@
 const _ = require("lodash");  
 const fs = require("fs");
+const path = require('path');
+files = fs.readdirSync(__dirname);
 
 let unique = new Set();
 
 function uniqueValues() {
-    for (k = 0; k <=19 ; k++){
-      const array = fs.readFileSync(`out${k}.txt`).toString().split("\n");
+  files.forEach(file => {
+    if (path.extname(file) == ".txt"){
+      const array = fs.readFileSync(file).toString().split("\n");
       for(i in array) {
         unique.add(array[i]);
       };
     };
-    return `Уникальных словосочетаний: ${unique.size}`
+  });
+  return `Уникальных словосочетаний: ${unique.size}`
 };
 
 function uniqueOne() {
   let uniq = [];
-  for (k = 0; k <= 19; k++){
-    const array = fs.readFileSync(`out${k}.txt`).toString().split("\n");
-    for(i in array) {
-      uniq.push(array[i]);
+  files.forEach(file => {
+    if (path.extname(file) == ".txt"){
+      const array = fs.readFileSync(file).toString().split("\n");
+      for(i in array) {
+        uniq.push(array[i]);
+      };
     };
-  };
+  });
   let count = _.countBy(uniq);
   let result = [];
   for (i in count) {
@@ -32,12 +38,14 @@ function uniqueOne() {
 let existAll = new Array();
 
 function existInAllFiles() {
-    for (k = 0; k <= 19; k++){
-      const array = fs.readFileSync(`out${k}.txt`).toString().split("\n");
+  files.forEach(file => {
+    if (path.extname(file) == ".txt"){
+      const array = fs.readFileSync(file).toString().split("\n");
       existAll.push(array)
     };
-    let common = _.intersection.apply(_, existAll);
-    return `Словосочетаний, которые есть во всех 20 файлах: ${common.length}`
+  });
+  let common = _.intersection.apply(_, existAll);
+  return `Словосочетаний, которые есть во всех 20 файлах: ${common.length}`
 };
 
 let existTen = new Set();
