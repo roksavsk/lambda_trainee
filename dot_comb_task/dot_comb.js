@@ -1,19 +1,33 @@
-let result = [];
-
 function insert(str, index, value) {
     return str.substr(0, index) + value + str.substr(index);
-}
+};
 
-function dotComb(str, i = 0) {
-    while (i + 1 < str.length) {
-        i++;
-        let newWord = insert(str, i, ".");
-        result.push(newWord);
-        dotComb(newWord, i + 1);
-    }
-    let allComb = 2 ** (str.length - 1);
-    if (result.length == allComb - 1) result.push(str);
+function dotComb (str) {
+    let result = [str];
+    result.push(str.split("").join("."));
+    let all_comb = 2 ** (str.length - 1);
+    let comb = all_comb - 2 - (str.length - 1);
+    for (let i=1; i < str.length; i++) {
+        let new_v = insert(str, i, ".");
+        if (new_v[-1] != "."){
+            result.push(new_v);
+        };
+    };
+    for (let k=0; k < comb; k++) {
+        for (let i=1; i < str.length-1; i++) {
+            for (let item of result.slice(1)) {
+                if (item[i] != "." && item[i-1] != "."){
+                    new_w = insert(item, i, ".");
+                    if (!result.includes(new_w)) {
+                        result.push(new_w);
+                    }
+                }
+
+            }
+
+        }
+    };
     return result;
-}
+};
 
-console.log(dotComb("abcd"))
+console.log(dotComb("abcd"));
