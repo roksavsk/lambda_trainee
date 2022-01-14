@@ -22,9 +22,7 @@ function dotComb (str) {
                         result.push(new_w);
                     }
                 }
-
             }
-
         }
     };
     return result;
