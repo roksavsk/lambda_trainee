@@ -4,7 +4,7 @@ with open('schedule.json', 'r') as file:
     data = json.load(file)
 
 
-def one():
+def optimization():
     for i in range(len(data)):
         if "usedDays" in data[i]:
             del data[i]["usedDays"]
@@ -23,11 +23,11 @@ def one():
             del data[i]["endDate"]
 
 
-one()
+optimization()
 new_data = list(data)
 
 
-def two():
+def removing_duplicates():
     for i in range(len(data)):
         for k in range(i+1, len(data)):
             if data[i]["user_name"] == data[k]["user_name"] and data[k] in new_data:
@@ -35,7 +35,7 @@ def two():
                 new_data.remove(data[k])
 
 
-two()
+removing_duplicates()
 
 for i in range(len(new_data)):
     print(new_data[i])
