@@ -1,0 +1,192 @@
+
+service: image-upload
+
+frameworkVersion: '3'
+
+plugins:
+  - 'serverless-esbuild'
+  - 'serverless-dotenv-plugin'
+
+useDotenv: true
+custom:
+  fileUploadBucketName: process.env.UPLOAD_BUCKET
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  stage: dev
+  environment:
+    USER_POOL_ID: { Ref: UserPool }
+    CLIENT_ID: { Ref: UserClient }
+    FILE_UPLOAD_BUCKET_NAME: ${self:custom.fileUploadBucketName}
+
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource: "*"
+
+        - Effect: "Allow"
+          Action:
+            - s3:*
+          Resource:
+            - arn:aws:s3:::${self:custom.fileUploadBucketName}/*
+      
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - arn:aws:dynamodb:us-east-1:513476794027:table/Users
+
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - arn:aws:dynamodb:us-east-1:513476794027:table/Images
+
+functions:
+  hello:
+    handler: src/functions/hello/handler.main
+    events:
+      - http:
+          path: /hello
+          method: post
+  signup:
+    handler: src/functions/signup/handler.main
+    events:
+      - http:
+          path: /signup
+          method: post
+  autoconfirm:
+    handler: src/functions/autoconfirm/handler.handler
+    events:
+      - cognitoUserPool:
+          pool: image-storage
+          trigger: PreSignUp
+          existing: true
+          forceDeploy: true
+  signin:
+    handler: src/functions/signin/handler.main
+    events:
+      - http:
+          path: /signin
+          method: post
+  presigned:
+    handler: src/functions/presigned/handler.main
+    events:
+      - http:
+          path: /presigned
+          method: get
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+  getimages:
+    handler: src/functions/getimages/handler.main
+    events:
+      - http:
+          path: /getimages
+          method: get
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+  remove:
+    handler: src/functions/remove/handler.main
+    events:
+      - http:
+          path: /remove
+          method: post
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+
+resources:
+  Resources:
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: image-storage
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+        AutoVerifiedAttributes: ["email"]
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: image-storage-client
+        GenerateSecret: false
+        UserPoolId: { Ref: UserPool }
+        AccessTokenValidity: 5
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - "ADMIN_NO_SRP_AUTH"
+    
+    ImageS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.fileUploadBucketName}
+        AccessControl: PublicRead
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - HEAD
+              AllowedOrigins:
+                - '*'
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+
+    ImagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Images
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
