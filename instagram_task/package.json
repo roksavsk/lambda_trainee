@@ -1,15 +1,15 @@
 {
-  "name": "geoloc",
+  "name": "instagram_task",
   "version": "1.0.0",
   "description": "",
-  "main": "geoloc.js",
+  "main": "insta_task.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "ip": "^1.1.5"
+    "lodash": "^4.17.21"
   }
 }

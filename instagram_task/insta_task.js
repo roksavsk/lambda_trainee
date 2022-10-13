@@ -8,7 +8,7 @@ let unique = new Set();
 function uniqueValues() {
   files.forEach(file => {
     if (path.extname(file) == ".txt"){
-      const array = fs.readFileSync(file).toString().split("\n");
+      const array = fs.readFileSync(`${__dirname}/${file}`).toString().split("\n");
       for(i in array) {
         unique.add(array[i]);
       };
@@ -21,7 +21,7 @@ function uniqueOne() {
   let uniq = [];
   files.forEach(file => {
     if (path.extname(file) == ".txt"){
-      const array = fs.readFileSync(file).toString().split("\n");
+      const array = fs.readFileSync(`${__dirname}/${file}`).toString().split("\n");
       for(i in array) {
         uniq.push(array[i]);
       };
@@ -40,7 +40,7 @@ let existAll = new Array();
 function existInAllFiles() {
   files.forEach(file => {
     if (path.extname(file) == ".txt"){
-      const array = fs.readFileSync(file).toString().split("\n");
+      const array = fs.readFileSync(`${__dirname}/${file}`).toString().split("\n");
       existAll.push(array)
     };
   });
@@ -72,7 +72,7 @@ function existInTen() {
 };
 
 console.log(uniqueValues());
-console.log(uniqueOne())
+// console.log(uniqueOne())
 console.log(existInAllFiles());
 console.log(existInTen());
 
