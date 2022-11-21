@@ -1,16 +1,3 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
 service: redistribution
 plugins:
   - serverless-webpack
@@ -39,11 +26,14 @@ provider:
       statements:
         - Effect: "Allow"
           Action:
-            - ec2:DescribeNetworkInterfaces,
+            - logs:CreateLogGroup,
+            - logs:CreateLogStream,
+            - logs:PutLogEvents,
             - ec2:CreateNetworkInterface,
+            - ec2:DescribeNetworkInterfaces,
             - ec2:DeleteNetworkInterface,
-            - ec2:DescribeInstances,
-            - ec2:AttachNetworkInterface
+            - ec2:AssignPrivateIpAddresses,
+            - ec2:UnassignPrivateIpAddresses
           Resource:
             - "*"
 
@@ -62,6 +52,13 @@ provider:
           Resource:
             - arn:aws:sqs:us-east-1:884881268505:Redistribution
 
+        - Effect: "Allow"
+          Action:
+            - lambda:InvokeFunction
+            - lambda:InvokeAsync
+          Resource:
+            - "*"
+
 functions:       
   store:
     handler: src/functions/store/handler.main
@@ -69,6 +66,24 @@ functions:
       - http:
           path: /store
           method: post
+
+  mediator:
+    handler: src/functions/mediator/handler.main
+    events:
+      - http:
+          path: /mediator
+          method: post
+    vpc:
+      securityGroupIds:
+        - sg-0f036e6bb4e0cb393
+      subnetIds:
+        - subnet-0a79c9b6b6d522a3d
+        - subnet-0b9056ab68ffd2d31
+        - subnet-07dcd7e35633f1d39
+        - subnet-0d6767115e3ac99e7
+        - subnet-0deda19a8351327c7
+        - subnet-038b1a906589203c8
+
 
   verified:
     handler: src/functions/verified/handler.main

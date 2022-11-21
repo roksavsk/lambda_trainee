@@ -16,15 +16,29 @@ const verified = async (event: SQSEvent) => {
     });
 
     try {
+        pool.on('error', (err) => {
+            console.error('Unexpected error on idle client', err);
+            process.exit(-1);
+        });
+
         const client = await pool.connect();
         console.log('Connected Successfully');
 
         const sqlTable = `CREATE TABLE IF NOT EXISTS users (
-            user_id SERIAL PRIMARY KEY,
-            username VARCHAR ( 50 ) UNIQUE NOT NULL,
+            user_id SERIAL,
+            username VARCHAR ( 50 ) UNIQUE NOT NULL PRIMARY KEY,
             password VARCHAR ( 50 ) NOT NULL,
             search VARCHAR ( 50 ) NOT NULL,
             store VARCHAR ( 50 ) NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS stores (
+            id SERIAL PRIMARY KEY, 
+            store1 INT, 
+            store2 INT, 
+            store3 INT, 
+            store4 INT, 
+            store5 INT, 
+            username VARCHAR ( 50 ) REFERENCES users(username)
         );`;
 
         try {
@@ -41,11 +55,28 @@ const verified = async (event: SQSEvent) => {
                 console.log(body);
 
                 const sqlData = `INSERT INTO users (username, password, search, store) 
-                VALUES ('${body.name}', '${body.password}', '${body.search}', '${body.store}');`;
+                VALUES ('${body.name}', '${body.password}', '${body.search}', '${body.store}') 
+                ON CONFLICT ON CONSTRAINT users_username_key DO NOTHING;`;
                 console.log(sqlData);
 
                 try {
                     const res = await client.query(sqlData);
+                    console.log('Data was inserted', res);
+                } catch (err) {
+                    console.log(err.stack);
+                } 
+
+                const dict = {
+                    'UAmade': 'store1',
+                    'Converse': 'store2', 
+                    'Cropp': 'store3', 
+                    'New-Yorker': 'store4',
+                    'Funko-Pop': 'store5',
+                };
+                
+                const queryStore = `INSERT INTO stores ("${dict[body.store]}", username) VALUES (1, '${body.name}')`;
+                try {
+                    const res = await client.query(queryStore);
                     console.log('Data was inserted', res);
                 } catch (err) {
                     console.log(err.stack);
@@ -62,7 +93,8 @@ const verified = async (event: SQSEvent) => {
             console.log(body);
 
             const sqlData = `INSERT INTO users (username, password, search, store) 
-            VALUES ('${body.name}', '${body.password}', '${body.search}', '${body.store}');`;
+            VALUES ('${body.name}', '${body.password}', '${body.search}', '${body.store}') 
+            ON CONFLICT ON CONSTRAINT users_username_key DO NOTHING;`;
             console.log(sqlData);
 
             try {
@@ -70,10 +102,26 @@ const verified = async (event: SQSEvent) => {
                 console.log('Data was inserted', res);
             } catch (err) {
                 console.log(err.stack);
+            } 
+
+            const dict = {
+                'UAmade': 'store1',
+                'Converse': 'store2', 
+                'Cropp': 'store3', 
+                'New-Yorker': 'store4',
+                'Funko-Pop': 'store5',
+            };
+            
+            const queryStore = `INSERT INTO stores ("${dict[body.store]}", username) VALUES (1, '${body.name}')`;
+            try {
+                const res = await client.query(queryStore);
+                console.log('Data was inserted', res);
+            } catch (err) {
+                console.log(err.stack);
             } finally {
                 client.release();
             }
-      
+        
         }
 
     } catch (err) {
