@@ -131,9 +131,6 @@ dmypy.json
 # JS files directory
 output_js/
 
-# npm
-package-lock.json
-
 # Logs
 logs
 *.log
