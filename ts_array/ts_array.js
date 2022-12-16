@@ -80,7 +80,7 @@ Array.prototype.associateBy = function (marker) {
     }
     return result;
 };
-const data = [{ emoji: '😀', sad: false }, { emoji: '🥲', sad: false }];
+const data = [{ emoji: '😀', sad: false }, { emoji: '🥲', sad: false }, { emoji: ':(', sad: true }];
 console.log(data.associateBy((item) => item.sad ? "sad" : "happy"));
 // Map(1) {
 //     'happy' => [ { emoji: '😀', sad: false }, { emoji: '🥲', sad: false } ]
